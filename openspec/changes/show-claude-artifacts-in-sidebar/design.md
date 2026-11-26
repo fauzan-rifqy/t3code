@@ -25,7 +25,7 @@ Claude Code's `Artifact` tool is not specially classified. It becomes a `dynamic
 
 **Non-Goals:**
 
-- Rendering artifact content inside T3 Code, through an iframe or the in-app browser.
+- A dedicated artifact viewer or iframe embed. Artifacts open in the existing browser panel, as Decision 4 describes.
 - A global, cross-thread artifacts view, a command palette entry, or an MCP tool for linking artifacts by hand.
 - Fetching titles or thumbnails from claude.ai.
 
@@ -65,11 +65,25 @@ ThreadArtifactLink = Schema.Struct({
 
 The remove action is gated with `permissionAtom` and declared in `CLIENT_GUARDED_RPC_SCOPES`, matching issue unlinking. The design adds no animation.
 
-### 4. Open externally, not in the in-app browser
+### 4. Open through `useOpenLink`, so artifacts can show in the side browser panel
 
-Artifacts are private by default and need the user's claude.ai login. The in-app preview runs on the server's browser context, which is usually not signed in, and is often remote. Rows therefore call `api.shell.openExternal` on desktop, `window.open` on web, and `Linking.openURL` on mobile, not `useOpenLink`'s in-app path.
+On web and desktop, rows open artifacts with `useOpenLink(threadRef)` (`apps/web/src/browser/useOpenLink.ts:23`), the same path PR links and chat links use. `resolveLinkTarget` (`browserLinkTarget.ts:25`) makes the decision:
 
-**Alternative considered:** follow the user's link-target preference. Rejected for now, because a sign-in wall in the side panel is a worse first experience.
+- **Side panel:** the artifact opens as a tab in the thread's browser panel, through `openUrlInPreview`, when the user's `browserLinkTarget` setting is `"app"` and `canOpenLinksInApp` holds (the preview scope, and the panel being available for the environment).
+- **System browser:** used when the setting is `"system"`, on Cmd-click, Ctrl-click or middle-click, when the panel is unavailable, and as the fallback if opening the panel fails (`api.shell.openExternal`).
+
+**Signing in.** Artifacts are private by default, so the panel's first visit can show claude.ai's sign-in page.
+
+- **Desktop:** the panel runs with persistent browser profiles. The user signs in once, or imports cookies from another browser (`docs/user/browser-import.md`), and the session sticks.
+- **Web and remote environments:** the tab runs in the environment's server browser and streams to the client. Sign-in works the same way but lives on that machine.
+
+**Why:** artifacts show beside the chat with no new viewer code, and they behave exactly like every other link in T3 Code, including the user's existing preference.
+
+**Alternatives considered:**
+
+- _Always open in the system browser._ This avoids the first sign-in, but it ignores a preference the user already set and loses the side-by-side view. Rejected.
+- _Always open in the panel, whatever the setting._ Special-casing one link type is surprising. Rejected.
+- _Embed the artifact page in an iframe in the thread._ claude.ai controls whether its pages can be framed, and this would need new viewer code. Out of scope.
 
 ### 5. Mobile
 
@@ -84,6 +98,7 @@ The Claude Code adapter works through Decision 1. Codex, Cursor, Grok, OpenCode,
 - **[Risk]** The `Artifact` tool's input and output shape could change in future Claude Code releases. → Matching relies only on the tool name, the `action` and `url` input fields, and a URL regex over the output text. Unit tests use recorded tool results, and any mismatch fails silently to "no badge", never to an error.
 - **[Risk]** Adding a shell field grows the wire payload. → The list is capped at 20 small entries, is omitted when empty, and `transferBudgetV2.integration.test.ts` gets an artifact case. Run `vp run test:perf:v2-wire`.
 - **[Risk]** Retained events must decode after upgrade or downgrade. → The new fields are optional, and the new event is ignored by older consumers, as `thread.issue-synced` was.
+- **[Trade-off]** The first artifact opened in the browser panel can land on claude.ai's sign-in page. → The user signs in once per browser profile, or imports cookies on desktop. Cmd-click or Ctrl-click still opens the system browser, which is already signed in.
 - **[Trade-off]** Titles come only from the tool input or the file name, which can be terse. This was accepted to avoid fetching claude.ai from the server.
 
 ## Migration Plan

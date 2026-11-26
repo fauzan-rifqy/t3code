@@ -87,12 +87,27 @@ On web and desktop, a sidebar thread row with one or more artifacts SHALL show a
 
 ### Requirement: User can open an artifact
 
-Activating an artifact entry SHALL open its URL in the user's system browser, where their claude.ai session applies.
+On web and desktop, activating an artifact entry SHALL open its URL the same way other links in a thread open. When the user has chosen to open links in the app and the thread's environment supports the browser panel, it SHALL open as a tab in the thread's side browser panel. Otherwise it SHALL open in the system browser.
 
-#### Scenario: Open from hover card
+#### Scenario: Open in the side panel
 
-- **WHEN** the user clicks an artifact title in the sidebar hover card
+- **WHEN** the user has chosen to open links in the app and clicks an artifact title in the sidebar hover card
+- **THEN** the artifact opens as a tab in that thread's browser panel, beside the chat
+
+#### Scenario: Open in the system browser
+
+- **WHEN** the user has chosen to open links in the system browser, or the browser panel is unavailable for the thread's environment
 - **THEN** the artifact URL opens in the system browser
+
+#### Scenario: Modifier click
+
+- **WHEN** the user Cmd-clicks or Ctrl-clicks an artifact title
+- **THEN** the artifact URL opens in the system browser, whatever the link setting is
+
+#### Scenario: Panel cannot open
+
+- **WHEN** opening the artifact in the browser panel fails
+- **THEN** the artifact URL opens in the system browser instead
 
 ### Requirement: User can remove an artifact from a thread
 

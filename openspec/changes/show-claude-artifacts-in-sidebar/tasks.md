@@ -27,7 +27,7 @@
 
 ## 6. Web and desktop sidebar
 
-- [ ] 6.1 Add a `ThreadArtifactRows` component (title, relative publish time, open, remove) and an `artifactBadge` in `SidebarThreadRow.tsx` using `ThreadLinkBadge`, with remove gated by `permissionAtom`. Open with `api.shell.openExternal` on desktop and `window.open` on web. Verify with a browser test (`await using screen = await render(...)`) that covers the badge count, the hover list, opening and removing.
+- [ ] 6.1 Add a `ThreadArtifactRows` component (title, relative publish time, open, remove) and an `artifactBadge` in `SidebarThreadRow.tsx` using `ThreadLinkBadge`, with remove gated by `permissionAtom`. Open with `useOpenLink(threadRef)`, passing the click event so Cmd-click and Ctrl-click go to the system browser. Verify with a browser test (`await using screen = await render(...)`) that covers the badge count, the hover list, removing, and opening: a panel tab when the link target is `"app"`, and the system browser when it is `"system"` or on a modifier click.
 - [ ] 6.2 Add web translation strings (badge label with a plural count, "Remove from thread", "Artifacts") and run `vp run i18n:generate`. Verify that `vp run i18n:check` passes.
 
 ## 7. Mobile
@@ -37,12 +37,12 @@
 
 ## 8. Docs
 
-- [ ] 8.1 Add a short note to `docs/user/` explaining that artifacts Claude publishes appear on the thread's sidebar row, open in the system browser, and that removing one does not delete it on claude.ai. Verify that the page reads correctly in the user-docs voice.
+- [ ] 8.1 Add a short note to `docs/user/` explaining that artifacts Claude publishes appear on the thread's sidebar row and open in the side browser panel or the system browser, following the link setting. Mention signing into claude.ai once in the panel, with a link to `browser-import.md`, and that removing one does not delete it on claude.ai. Verify that the page reads correctly in the user-docs voice.
 
 ## 9. Integration
 
 - [ ] 9.1 Run `vp run check:changed`. Verify that it passes.
-- [ ] 9.2 Run an integrated pass with `test-t3-app` on web, using a real Claude Code (Haiku) turn that publishes an artifact. Check that the badge appears live, the hover list and open work, and removing it syncs to a second connected client. Repeat on mobile with `test-t3-mobile`.
+- [ ] 9.2 Run an integrated pass with `test-t3-app` on web, using a real Claude Code (Haiku) turn that publishes an artifact. Check that the badge appears live, the hover list works, the artifact opens in the side browser panel beside the chat once signed into claude.ai, Cmd-click opens the system browser, and removing it syncs to a second connected client. Repeat on mobile with `test-t3-mobile`.
 
 ## Workflow follow-up
 

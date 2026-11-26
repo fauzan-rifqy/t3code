@@ -8,7 +8,7 @@ When Claude Code publishes a claude.ai Artifact, such as a report, dashboard or 
 
 - The server detects successful Claude Code `Artifact` publishes from the tool result. Each one is recorded as a link on its thread, holding the URL, a title and the publish time. Republishing to the same URL updates the existing entry and does not add a duplicate. An `Artifact` delete action removes the entry.
 - Threads carry an optional, bounded list of artifact links. It sits on the full thread and on the sidebar thread shell, and it is persisted with the thread like linked issues. Older servers and clients still decode.
-- The web and desktop sidebar thread row shows an artifact badge with a count. Its hover card lists each artifact by title. Clicking an entry opens the artifact, and each entry has a way to remove it from the thread.
+- The web and desktop sidebar thread row shows an artifact badge with a count. Its hover card lists each artifact by title. Clicking an entry opens the artifact in the thread's side browser panel when the user opens links in the app, and otherwise in the system browser. Each entry has a way to remove it from the thread.
 - Mobile thread rows show the same artifact count and open the artifact from the thread.
 - New user-facing strings are translated.
 
